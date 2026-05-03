@@ -82,66 +82,81 @@ function initModal() {
   const cards = document.querySelectorAll('.project-card');
   const closeBtn = document.querySelector('.close-modal');
 
-  if (!modal || !cards.length) return;
+  if (!modal || !cards.length || !closeBtn) {
+    console.warn('Modal elements not found');
+    return;
+  }
+
+  const modalTitle = document.getElementById('modal-title');
+  const modalDesc = document.getElementById('modal-description');
+  const modalImg = document.getElementById('modal-image');
+  const modalGithub = document.getElementById('modal-github');
+  const techContainer = document.getElementById('modal-tech');
 
   cards.forEach(card => {
     card.addEventListener('click', (e) => {
-      // Evitar que el modal se abra si se hace click directamente en un link del card
-      if (e.target.closest('a')) return;
+      // Evitar que el modal se abra si se hace click directamente en un link o botón dentro del card
+      if (e.target.closest('a') || e.target.closest('button')) return;
 
-      const title = card.getAttribute('data-title');
-      const desc = card.getAttribute('data-description');
-      const img = card.getAttribute('data-image');
-      const github = card.getAttribute('data-github');
-      const tech = card.getAttribute('data-tech').split(',');
+      const title = card.getAttribute('data-title') || 'Proyecto';
+      const desc = card.getAttribute('data-description') || 'Sin descripción disponible.';
+      const img = card.getAttribute('data-image') || '';
+      const github = card.getAttribute('data-github') || '#';
+      const techAttr = card.getAttribute('data-tech') || '';
+      const tech = techAttr ? techAttr.split(',') : [];
 
-      document.getElementById('modal-title').innerText = title;
-      document.getElementById('modal-description').innerText = desc;
-      document.getElementById('modal-image').src = img;
-      document.getElementById('modal-github').href = github;
+      if (modalTitle) modalTitle.innerText = title;
+      if (modalDesc) modalDesc.innerText = desc;
+      if (modalImg) {
+        modalImg.src = img;
+        modalImg.alt = title;
+      }
+      if (modalGithub) modalGithub.href = github;
 
-      const techContainer = document.getElementById('modal-tech');
-      techContainer.innerHTML = '';
-      tech.forEach(t => {
-        const span = document.createElement('span');
-        span.innerText = t;
-        techContainer.appendChild(span);
-      });
+      if (techContainer) {
+        techContainer.innerHTML = '';
+        tech.forEach(t => {
+          if (t.trim()) {
+            const span = document.createElement('span');
+            span.innerText = t.trim();
+            techContainer.appendChild(span);
+          }
+        });
+      }
 
       modal.classList.add('active');
-      document.body.style.overflow = 'hidden'; // Bloquear scroll
+      document.body.style.overflow = 'hidden';
     });
   });
 
-  closeBtn.addEventListener('click', () => {
+  const closeModal = () => {
     modal.classList.remove('active');
     document.body.style.overflow = 'auto';
-  });
+  };
+
+  closeBtn.addEventListener('click', closeModal);
 
   window.addEventListener('click', (e) => {
-    if (e.target === modal) {
-      modal.classList.remove('active');
-      document.body.style.overflow = 'auto';
-    }
+    if (e.target === modal) closeModal();
   });
 
-  // Cerrar con tecla Escape
   window.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && modal.classList.contains('active')) {
-      modal.classList.remove('active');
-      document.body.style.overflow = 'auto';
-    }
+    if (e.key === 'Escape' && modal.classList.contains('active')) closeModal();
   });
 }
 
 // ========== INIT ==========
 document.addEventListener('DOMContentLoaded', () => {
-  createStars();
-  initReveal();
-  initMenu();
-  initTabs();
-  initNavbar();
-  initModal();
+  try {
+    createStars();
+    initReveal();
+    initMenu();
+    initTabs();
+    initNavbar();
+    initModal();
+  } catch (error) {
+    console.error('Error durante la inicialización:', error);
+  }
 });
 
 // CSS animation for tab filter

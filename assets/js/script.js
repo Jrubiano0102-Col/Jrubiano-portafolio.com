@@ -76,6 +76,64 @@ function initNavbar() {
   navbar.style.transition = 'transform 0.4s ease';
 }
 
+// ========== MODAL PROYECTOS ==========
+function initModal() {
+  const modal = document.getElementById('project-modal');
+  const cards = document.querySelectorAll('.project-card');
+  const closeBtn = document.querySelector('.close-modal');
+
+  if (!modal || !cards.length) return;
+
+  cards.forEach(card => {
+    card.addEventListener('click', (e) => {
+      // Evitar que el modal se abra si se hace click directamente en un link del card
+      if (e.target.closest('a')) return;
+
+      const title = card.getAttribute('data-title');
+      const desc = card.getAttribute('data-description');
+      const img = card.getAttribute('data-image');
+      const github = card.getAttribute('data-github');
+      const tech = card.getAttribute('data-tech').split(',');
+
+      document.getElementById('modal-title').innerText = title;
+      document.getElementById('modal-description').innerText = desc;
+      document.getElementById('modal-image').src = img;
+      document.getElementById('modal-github').href = github;
+
+      const techContainer = document.getElementById('modal-tech');
+      techContainer.innerHTML = '';
+      tech.forEach(t => {
+        const span = document.createElement('span');
+        span.innerText = t;
+        techContainer.appendChild(span);
+      });
+
+      modal.classList.add('active');
+      document.body.style.overflow = 'hidden'; // Bloquear scroll
+    });
+  });
+
+  closeBtn.addEventListener('click', () => {
+    modal.classList.remove('active');
+    document.body.style.overflow = 'auto';
+  });
+
+  window.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      modal.classList.remove('active');
+      document.body.style.overflow = 'auto';
+    }
+  });
+
+  // Cerrar con tecla Escape
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal.classList.contains('active')) {
+      modal.classList.remove('active');
+      document.body.style.overflow = 'auto';
+    }
+  });
+}
+
 // ========== INIT ==========
 document.addEventListener('DOMContentLoaded', () => {
   createStars();
@@ -83,6 +141,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initMenu();
   initTabs();
   initNavbar();
+  initModal();
 });
 
 // CSS animation for tab filter
